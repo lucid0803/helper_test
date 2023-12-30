@@ -1,27 +1,49 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // 네이버 지도 API 초기화
     const map = new naver.maps.Map("map", {
         center: new naver.maps.LatLng(37.5665, 126.9780),
-        zoom: 10,
+        zoom: 12,
     });
 
-    // 매물 위치를 나타내는 마커 생성
-    const marker = new naver.maps.Marker({
+    // 매물 데이터 (예제에서는 하나의 매물만 표시)
+    const propertyData = [
+        { id: 1, latlng: new naver.maps.LatLng(37.5665, 126.9780), title: "매물 1", description: "이 매물은 테스트용입니다." }
+    ];
+
+    // 매물 마커 표시
+    const markers = propertyData.map((property) => {
+        const marker = new naver.maps.Marker({
+            position: property.latlng,
+            map: map,
+            title: property.title,
+        });
+
+        // 클릭 시 정보 패널 업데이트
+        naver.maps.Event.addListener(marker, "click", function (e) {
+            updateInfoPanel(property);
+        });
+
+        return marker;
+    });
+
+    // 정보 패널 업데이트 함수
+    function updateInfoPanel(property) {
+        const infoPanel = document.getElementById("info-panel");
+        infoPanel.innerHTML = `<h2>${property.title}</h2><p>${property.description}</p>`;
+    }
+
+    // 매물 개수 표시
+    const markerCount = new naver.maps.Marker({
         position: new naver.maps.LatLng(37.5665, 126.9780),
         map: map,
+        icon: {
+            content: '<div class="marker-count">1</div>',
+            size: new naver.maps.Size(30, 30),
+            anchor: new naver.maps.Point(15, 15),
+        },
     });
 
-    // 매물에 대한 정보 창 생성
-    const infoWindow = new naver.maps.InfoWindow({
-        content: "<h2>매물 정보</h2><p>이곳은 매물입니다.</p>",
-    });
-
-    // 마커를 클릭하면 정보 창을 열기
-    naver.maps.Event.addListener(marker, "click", function (e) {
-        if (infoWindow.getMap()) {
-            infoWindow.close();
-        } else {
-            infoWindow.open(map, marker);
-        }
+    // 클릭 시 정보 패널 업데이트
+    naver.maps.Event.addListener(markerCount, "click", function (e) {
+        updateInfoPanel(propertyData[0]); // 예제에서는 첫 번째 매물 정보 표시
     });
 });
